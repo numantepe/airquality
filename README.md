@@ -1,93 +1,92 @@
 # Deterioration of Air Quality
 
-## Model Description
+A cellular automaton, written in [Processing](https://processing.org), that models how deforestation and water pollution affect air quality.
 
-As technological advances and industrialization have become more prevalent, the human race has produced and consumed more in the past 300 years than it ever did since the beginning of human race till the 18th century. While we are enjoying this rapidly increasing high quality of life, we are becoming used to neglecting the consequences that our behaviours had on the environment.
+Cities grow out of the desert, cut down forests and pollute the seas, and they release smog into the air. Forests and clean water absorb that smog. Three awareness rates control how carefully people treat their environment, so you can see how much forest protection, wastewater treatment and smoke filtering change the result.
 
-For years human beings never gave any regards to industrial waste management before dumping it into the environment and kept cutting down the trees, burning down our forests to ashes. When we eventually realized its negative impacts on the air quality overall, it was largely too late.
+## Background
 
-Therefore, in this cellular automation, I will try to simulate the correlation that the water pollution and deforestation have with the air pollution or the air quality to show you the importance of wastewater treatment, usage of air filtration systems and protecting our forests.
+Smog is a mix of smoke and fog, mostly from burning coal, vehicle exhaust and factory emissions. Plants and algae absorb some of its gases (CO<sub>2</sub>, NO<sub>2</sub>, SO<sub>2</sub>) and release oxygen, which makes forests and healthy seas natural air filters. When forests are cut down or the water is contaminated, those filters disappear and the air gets worse.
 
-Smog is air pollution that reduces visibility. The term "smog" is used to describe a mix of smoke and fog. The smog usually comes from burning coal, car exhaust, and factory emissions. Photosynthetic organisms such as green plants in forests or algae under the sea, are a big potential for removal of air pollutants. Smog consists of gases like CO<sub>2</sub>, NO<sub>2</sub>, SO<sub>2</sub> which are important nutrients for these organisms and they absorb them to produce their own food. They reintroduce oxygen into the atmosphere after the conversion and that increases the air quality.
+## Running the simulation
 
-The simulation shows different environmental outcomes depending on how often humans treat their industrial wastewater or sewage, use smoke filters and preserve their woods from deforestation.
+1. Install [Processing](https://processing.org/download) (version 3 or later).
+2. Open `airquality.pde` and press **Run**.
 
-## Possible States of Cell
+The map is generated at random every time you run the sketch.
 
-1.  The gold pixels will represent the cities where people live or farmlands, crop fields etc.
+## Configuration
 
-2.  The dark green pixels will represent the lush beautiful forests.
+These variables are at the top of `airquality.pde`:
 
-3.  The greenish white pixels will represent the deserts where barely any plant lives or destroyed forests.
+| Variable | Default | Description |
+| --- | --- | --- |
+| `n` | `200` | Grid size (n × n cells) |
+| `blinksPerSecond` | `60` | Frame rate (recommended 10–100) |
+| `numOfCities` | `10` | Number of cities at the start |
+| `deforestationAwarenessRate` | `100` | 0–100. Higher means fewer forests are cut down |
+| `waterPollutionAwarenessRate` | `100` | 0–100. Higher means more wastewater is treated |
+| `airPollutionAwarenessRate` | `100` | 0–100. Higher means fewer emissions (smoke filters etc.) |
 
-4.  The deep sky blue pixels will represent the clean seas or oceans where algae is abundant.
+Try setting all three awareness rates to `0` and compare the result with the defaults.
 
-5.  The dark purple pixels will represent the contaminated waters where algae were all killed and dead.
+## Cell states
 
-6.  The gray translucent pixels will represent the smog (smokes of CO<sub>2</sub>, NO<sub>2</sub>, SO<sub>2</sub>) that reduce the air quality.
+| Colour | State | Represents |
+| --- | --- | --- |
+| Gold | City | Cities, farmland and crop fields |
+| Dark green | Forest | Healthy forest |
+| Pale green-white | Desert | Barren land or destroyed forest |
+| Sky blue | Water | Clean sea with plenty of algae |
+| Dark purple | Contaminated water | Polluted water where the algae has died |
+| Translucent grey | Smog | Air pollution, drawn over the terrain |
 
-## Evolution Rules
+## Evolution rules
 
-1.  In the beginning of the simulation, the cities will always pop up in the middle of deserts.
+Each cell looks at its 8 neighbours. In the formulas below, *p* = 101 − the relevant awareness rate, so *p* is 1 at 100% awareness and 101 (always) at 0% awareness.
 
-2.  Whenever a city pixel is adjacent to one or more desert pixels, there is a 50% chance that one of the relevant desert pixels will turn into a city pixel, and others will stay the same, in every frame. (This is how the cities will grow over time.)
+| # | Rule | Chance per frame |
+| --- | --- | --- |
+| 1 | Cities start in random desert cells. | — |
+| 2 | **City growth:** a city turns one neighbouring desert into city. Each city is active in a frame with a chance of 1 / (10 + *t*/5), where *t* is the time in seconds, so growth slows down over time. | 50% per desert neighbour |
+| 3 | **Deforestation:** a city turns one neighbouring forest into desert. | 50% × *p*% |
+| 4 | **Water pollution:** a city contaminates one neighbouring water cell. | 0.1% |
+| 5 | **Pollution spread:** contaminated water contaminates one neighbouring water cell. | (*p* / 40)% |
+| 6 | **Contamination damage:** a forest next to contaminated water turns into desert. | 0.1% |
+| 7 | **Emissions:** a city releases a smog particle, which then drifts across the map at a random speed. This chance falls over time. | (*p* / 2)% at the start |
+| 8 | **Air cleaning:** smog over a forest or clean water is absorbed. | 50% |
+| 9 | Deserts and contaminated water don't absorb smog. | — |
+| 10 | **Natural recovery:** clean water cleans one neighbouring contaminated cell, and a forest regrows one neighbouring desert cell. | 0.02% |
 
-3.  Whenever a city pixel interacts with one or more forest pixels, there is a p% chance that one of the relevant forest pixels will vanish and turn into a desert pixel. (This is deforestation), where p is given by the formula (100/(100-deforestationAwarenessRate+1))%
+## Sample evolution
 
-*\*The variable deforestationAwarenessRate represents how much humans pay attention not to damage their forests, in percentages.*
+| First generation | Second generation |
+| :---: | :---: |
+| <img src="images/first-generation.png" width="300" alt="Grid of 16 numbered cells, first generation" /> | <img src="images/second-generation.png" width="300" alt="The same 16 cells, second generation" /> |
 
-4.  Whenever a city pixel interacts with one or more water pixels, there is a 0.1% chance that one of the relevant water pixels will vanish and turn into a contaminated water pixel. (Beginning of Water Pollution)
+The cells that changed between the two generations:
 
-5.  Whenever a contaminated water pixel interacts with one or more water pixels. There is a (100/(100-waterPollutionAwarenessRate+1))% chance that one of the relevant water pixels will vanish and turn into a contaminated water pixel. (Spread of Water Pollution in Seas)
+| Cell | Rule | Caused by |
+| --- | --- | --- |
+| 3 | #5 Pollution spread | Cell 2 |
+| 7 | #4 Water pollution | Cell 6 |
+| 11 | #3 Deforestation | Cell 11 |
+| 12 | #8 Air cleaning | Cell 12 |
+| 14 | #2 City growth | Cell 13 |
 
-*\*The variable waterPollutionAwarenessRate represents how much humans give regards to waste management and treat their wastewater or sewage before dumping it into the oceans, in percentages.*
+## What the model gets right
 
-6.  Whenever a forest pixel interacts with a contaminated water pixel. There is a 0.1% chance that the relevant forest pixel will vanish and turn into a desert pixel. (Because water pollution negatively affects the plants nearby as well)
+- Water pollution and deforestation make air quality worse, and protecting forests and water helps clear harmful gases from the air.
+- Environmental precautions significantly slow down the damage, but they can't stop it completely. A growing population still uses up resources.
+- As resources run out, consumption slows down. With every awareness rate at 0%, cities spread and forests disappear quickly at first, then the destruction slows.
 
-7.  In every frame, there is a (100/(100-airPollutionAwarenessRate+1))% chance that any city pixel will create a new dark grey translucent smog pixel above it. (Source of air pollution)
+## Limitations
 
-*\*The variable airPollutionAwarenessRate represents how much humans pay attention not to emit detrimental gases into the air or use smoke filters and such, in percentages.*
+- **Day and night:** plants and algae absorb CO<sub>2</sub> all the time in the model. In reality, photosynthesis only happens in daylight, and at night they release CO<sub>2</sub> through respiration.
+- **Weather:** there is no weather. Rain, wind and seasons have no effect.
+- **Population:** cities never shrink. In reality, populations can fall because of war or low birth rates.
+- **Pollutants:** smog is modelled as only CO<sub>2</sub>, NO<sub>2</sub> and SO<sub>2</sub>. Real air pollution also includes CFCs, VOCs and other pollutants that plants can't absorb.
 
-8.  Whenever a smog pixel interacts with a water or a forest pixel. There is a 50% chance that the smog pixel will disappear and will be cleaned. (The photosynthetic organisms living in forests and under the water will absorb those gases and release oxygen, increasing the air quality accordingly.)
+## License
 
-9.  The smog pixels will not be affected by the contaminated water or desert pixels. Because contaminated water killed every living being under it and there are barely any plants in deserts.
-
-10. Whenever a water pixel interacts with one or more contaminated water pixels. There is a 0.02% chance that one of the relevant contaminated water pixels will be cleaned and turned into a water pixel. Similarly, whenever a forest pixel interacts with one or more desert pixels. There is a 0.02% chance that one of the relevant desert pixels will turn into a water pixel and new plants will grow in that area. (We all know that nature eventually heals itself when we leave it alone, either by reproduction of new plants or by decomposition of our waste in nature. But it is unfortunately a very slow process.)
-
-## Sample Evolution
-
-| First Generation | Second Generation |
-|:---:|:---:|
-| <img src="images/first-generation.png" width="300" alt="First generation" /> | <img src="images/second-generation.png" width="300" alt="Second generation" /> |
-
-## The Cells that Changed State
-
-- Cell 3: Evolution Rule \#5 (Caused by Cell 2)
-
-- Cell 7: Evolution Rule \#4 (Caused by Cell 6)
-
-- Cell 11: Evolution Rule \#3 (Caused by Cell 11)
-
-- Cell 12: Evolution Rule \#8 (Caused by Cell 12)
-
-- Cell 14: Evolution Rule \#2 (Caused by Cell 13)
-
-## Accurate Predictions Made by the Model
-
-1.  This simulation shows how water pollution and deforestation can deteriorate the air quality and how protecting them helps us get rid of such harmful gases in the atmosphere, just like in real life.
-
-2.  The simulation also accurately predicts that the precautions we take in order to protect our environment can significantly slow down the destruction of our environment we usually take for granted.
-
-3.  The simulation also predicts that no matter how much you try to protect the environment, you will still use up resources to feed your population because, the more the population grows, the more the societies will consume. However we can decrease that a lot by recycling.
-
-4.  And lastly, the simulation also accurately portrays that the more humans realize they are running out of resources, the more cautious they will be when consuming any more. You can understand what I mean by assigning all the awareness rates to 0% in the code and start running the simulation. The cities will grow rapidly and humans will cut down the forests at a frantic speed but eventually the deforestation will get slower as the time goes on.
-
-## What the Model Gets Wrong About the Reality
-
-1.  This simulation assumes that photosynthetic organisms absorb carbon dioxide and release oxygen all the time. However, in reality this process is actually the other way around. The cellular respiration happens at nights rather than photosynthesis. Photosynthesis happens during the daytime.
-
-2.  The weather is always sunny everywhere in this simulation. It never rains or snows and all. Whereas in reality, there are many types of weather obviously.
-
-3.  This program assumes that cities grow all the time and never stops growing. But in reality we know that this isn’t always the case. For example, the human population may diminish because of wars or the birth rate might be too low.
-
-4.  This simulation assumes that the gas particles causing the air pollution only consists of carbon dioxide, sulphur dioxide and nitrogen dioxide molecules which the photosynthetic organisms can absorb. Whereas in reality, air pollution is caused by various other harmful gases such as chlorofluorocarbons, VOCs and other chemical pollutants which photosynthetic organisms cannot really deal with.
+[MIT](LICENCE.md) © 2023 Numan Tepe
