@@ -86,7 +86,3 @@ The cells that changed between the two generations:
 - **Weather:** there is no weather. Rain, wind and seasons have no effect.
 - **Population:** cities never shrink. In reality, populations can fall because of war or low birth rates.
 - **Pollutants:** smog is modelled as only CO<sub>2</sub>, NO<sub>2</sub> and SO<sub>2</sub>. Real air pollution also includes CFCs, VOCs and other pollutants that plants can't absorb.
-
-## License
-
-[MIT](LICENCE.md) © 2023 Numan Tepe
